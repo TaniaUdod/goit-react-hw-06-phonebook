@@ -2,6 +2,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Form, Label, Input, Button } from './ContactForm.styled';
 import { getContacts } from '../../redux/selectors';
 import { addContact } from '../../redux/contacts/contactsSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const ContactForm = () => {
   const contacts = useSelector(getContacts);
@@ -19,11 +21,17 @@ export const ContactForm = () => {
     );
 
     if (isExist) {
-      alert(`${formName} is already in contacts.`);
+      toast.error(`${formName} is already in contacts.`, {
+        theme: 'colored',
+      });
       return;
     }
 
     dispatch(addContact(formName, formNumber));
+
+    toast.success(`${formName} has been successfully added to your contacts!`, {
+      theme: 'colored',
+    });
 
     form.reset();
   };
@@ -57,6 +65,7 @@ export const ContactForm = () => {
         />
       </Label>
       <Button type="submit">Add contact</Button>
+      <ToastContainer />
     </Form>
   );
 };
