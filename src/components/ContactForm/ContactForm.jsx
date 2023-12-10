@@ -1,24 +1,31 @@
-import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Form, Label, Input, Button } from './ContactForm.styled';
+import { getContacts } from '../../redux/selectors';
+import { addContact } from '../../redux/contacts/contactsSlice';
 
-export const ContactForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-
-  const handleInputChange = event => {
-    const { name, value } = event.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
-    }
-  };
+export const ContactForm = () => {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
   const handleSubmit = event => {
     event.preventDefault();
-    onSubmit({ name, number });
-    setName('');
-    setNumber('');
+
+    const form = event.target;
+    const formName = event.target.elements.name.value;
+    const formNumber = event.target.elements.number.value;
+
+    const isExist = contacts.some(
+      contact => contact.name.toLowerCase() === formName.toLowerCase()
+    );
+
+    if (isExist) {
+      alert(`${formName} is already in contacts.`);
+      return;
+    }
+
+    dispatch(addContact(formName, formNumber));
+
+    form.reset();
   };
 
   return (
@@ -28,8 +35,7 @@ export const ContactForm = ({ onSubmit }) => {
         <Input
           type="text"
           name="name"
-          value={name}
-          onChange={handleInputChange}
+          value={contacts.name}
           pattern="^[a-zA-Zа-яА-Я]+(([' \-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           placeholder="Enter name"
           title="Name can include letters, apostrophes, spaces, and hyphens."
@@ -42,8 +48,7 @@ export const ContactForm = ({ onSubmit }) => {
         <Input
           type="tel"
           name="number"
-          value={number}
-          onChange={handleInputChange}
+          value={contacts.number}
           pattern="\+?\d{1,4}?[ .\-\s]?\(?\d{1,3}?\)?[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,9}"
           placeholder="Enter number"
           title="Phone number must consist of numbers and can contain spaces, periods, hyphens, and parentheses."
